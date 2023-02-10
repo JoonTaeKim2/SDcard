@@ -25,8 +25,8 @@ extern void PutSt(char *);
 
 void cli_loop(void) ;
 void init_command(void);
-void parse_command(const char *command, int *argc, char **argv);
+//void parse_command(const char *command, int *argc, char **argv);
 void print_args(int argc, char *argv[]) ;
 
-void *wait_command(void);
+//char *wait_command(void);
 

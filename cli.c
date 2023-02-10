@@ -7,167 +7,134 @@ struct menu_table{
     void (*menu_func)(void);
 };
 
-static void menu_header(char *title);
-static void menu_body(struct menu_table *body, int num_items);
-static int menu_tail(void);
 
+struct cli_table {
+    char *cmd_name; 
+    char *cmd_help;
+    void (*cli_func)(int, char**);
+};
 
-static void do_cloth(void);
-static void do_business(void);
-static void do_books(void);
-static void do_toys(void);
-static void do_dvds(void);
-static void do_collectibles(void);
-static void do_health(void);
-static void do_computers(void);
+static void do_cloth(int argc, char **argv){
+    PutSt("Here is do_cloth function \r\n");
+}
+static void do_business(int argc, char **argv){
+    PutSt("Here is do_business function \r\n");
+}
+static void do_books(int argc, char **argv);
 
-struct menu_table top_menu[] = {
-    {"Clothing", do_cloth}, 
-    {"Business", do_business}, 
-    {"Books", do_books}, 
-    {"Toys", do_toys}, 
-    {"DVDs", do_dvds}, 
-    {"Collectibles", do_collectibles}, 
-    {"Health", do_health}, 
-    {"Computers", do_computers} 
+static void do_toys(int argc, char **argv){
+    PutSt("Here is do_toys function \r\n");
+}
+static void do_dvds(int argc, char **argv){
+    PutSt("Here is do_dvds function \r\n");
+}
+static void do_collectibles(int argc, char **argv){
+    PutSt("Here is do_collectibles function \r\n");
+}
+static void do_health(int argc, char **argv){
+    PutSt("Here is do_health function \r\n");
+}
+static void do_computers(int argc, char **argv){
+    PutSt("Here is do_computers function \r\n");
+}
+static void do_help(int argc, char **argv);
+static void do_books(int argc, char **argv);
+
+struct cli_table cli_command[] = {
+    {"Clothing", "Clothing, Shoes & Accesories", do_cloth}, 
+    {"Business", "Business & Industrial", do_business}, 
+    {"Books", "Books", do_books}, 
+    {"Toys", "Toys & Hobbies", do_toys}, 
+    {"media", "DVDs & Movies", do_dvds}, 
+    {"collect", "Collectibles", do_collectibles}, 
+    {"Health", "Health & Beauty", do_health}, 
+    {"Computers", "Computers & Tablets", do_computers},
+    {"help", "Display CLI command usage", do_help}
 } ;
 
 
-static void do_art(void);
-static void do_comics(void);
-static void do_history(void);
-static void do_sf(void);
+static int num_commands = array_num(cli_command);
 
-struct menu_table book_menu[] ={
-    {"Arts & Photography", do_art},
-    {"comics & Graphic Novels", do_comics},
-    {"History", do_history},
-    {"Science Fiction", do_sf},
+static int cmd_sorted = 0 ;
+static int cli_order[array_num(cli_command)];
+
+static void do_help(int argc, char **argv){
+    int i ; 
+    for ( i = 0; i < num_commands; i++){
+        printf("%-10s : %s\n", cli_command[cli_order[i]].cmd_name, 
+                               cli_command[cli_order[i]].cmd_help);
+    }
+}
+
+static void sort_table(void)
+{
+    int     i, j, tmp;
+
+    for (i=0; i<num_commands; i++)
+        cli_order[i] = i;
+
+    for (i=num_commands-1; i; i--)
+        for (j=0; j<i; j++)
+        {
+            if (strcmp(cli_command[cli_order[j]].cmd_name,
+                       cli_command[cli_order[j+1]].cmd_name) > 0)
+            {
+                tmp = cli_order[j];
+                cli_order[j] = cli_order[j+1];
+                cli_order[j+1] = tmp;
+            }
+        }
+}
+
+static void do_art(int argc, char **argv){
+    PutSt("Here is do_art function \r\n");
+}
+static void do_comics(int argc, char **argv){
+    PutSt("Here is do_comics function \r\n");
+}
+static void do_history(int argc, char **argv){
+    PutSt("Here is do_history function \r\n");
+}
+static void do_sf(int argc, char **argv){
+    PutSt("Here is do_sf function \r\n");
+}
+struct cli_table book_cmd[] = {
+    {"art", "Arts & Photography", do_art},
+    {"comic", "Comics & Graphic Novels", do_comics},
+    {"history", "History", do_history},
+    {"sf", "Science Fiction", do_sf},
 };
+static int book_items = array_num(book_cmd);
 
 
-static void do_art(void)
-{
-    puts("Arts & Photography\n");
-}
-static void do_comics(void)
-{
-    puts("Comics & Graphic Novels\n");
-}
-static void do_history(void)
-{
-    puts("History\n");
-}
-static void do_sf(void)
-{
-    puts("Science Fiction\n");
+static void book_help(){
+    int i ; 
+
+    printf("You can select one of below item \n");
+    for ( i = 0; i < book_items; i++){
+        printf("%-10s : %s\n", book_cmd[i].cmd_name, book_cmd[i].cmd_help);
+    }
 }
 
+static void do_books(int argc, char **argv){
+    int i ; 
 
-static void do_cloth(void)
-{
-    puts("Clothing, Shoes & Accessories\n");
+    if ( argc == 1){
+        book_help();
+        return ;
+    }
+
+    for ( i = 0 ; i < book_items; i++){
+        if(strcmp(book_cmd[i].cmd_name, argv[1])==0){
+            book_cmd[i].cli_func(argc, argv);
+            break ;
+        }
+    }
 }
 
-static void do_business(void)
-{
-    puts("Business & Industrial\n");
-}
-
-static void do_books(void)
-{
-    //puts("Books\n");
-    int menu_num, num_items ;
-
-    do{
-        num_items = array_num(book_menu);
-        menu_header("Books");
-        menu_body(book_menu, num_items);
-        menu_num = menu_tail();
-
-        if ( menu_num > 0 && menu_num <= num_items)
-            book_menu[menu_num-1].menu_func();
-    } while (menu_num);
-}
-
-static void do_toys(void)
-{
-    puts("Toys & Hobbies\n");
-}
-
-static void do_dvds(void)
-{
-    puts("DVDs & Movies\n");
-}
-
-static void do_collectibles(void)
-{
-    puts("Collectibles\n");
-}
-
-static void do_health(void)
-{
-    puts("Health & Beauty\n");
-}
-
-static void do_computers(void)
-{
-    puts("Computers & Tablets\n");
-}
 static char command_buf[CMD_BUFSIZE] ;
 
-static int title_len ;
-
-static void menu_header(char *title){
-    title_len = strlen(title)+ 8;
-    int i ; 
-
-    PutSt("\r\n\r\n");
-    for ( i = 0 ; i < title_len; i++)
-        PutCh('=');
-
-    printf("\n    %s\n",title);
-
-    for (i = 0; i < title_len; i++)
-        PutCh('=');
-
-    PutSt("\r\n\r\n");
-}
-
-static void menu_body(struct menu_table *body, int num_items){
-    int i ; 
-    
-    for (i = 0; i < num_items; i++, body++)
-        printf("%2d. %s\n",i+1, body->menu_item);
-}
-
-static int menu_tail(void){
-    int i ; 
-
-    for ( i = 0 ; i < title_len; i++)
-        PutCh('-');
-    printf("\n 0. Exit\n");
-    for ( i = 0 ; i < title_len; i++)
-        PutCh('-');
-
-    printf("\n   Select Number: ");
-
-    return strtol(wait_command(), NULL, 0);
-}
-void root_menu(char *main_menu){
-    int menu_num, num_items ;
-
-    num_items = array_num(top_menu);
-    menu_header(main_menu);
-    menu_body(top_menu, num_items);
-    menu_num = menu_tail();
-    if ( menu_num > 0 && menu_num <= num_items)
-        top_menu[menu_num-1].menu_func();
-    else
-        PutSt("Unknown Item\r\n");
-}
-
-void *wait_command(void){
+char *wait_command(void){
     char *cp = command_buf ;
     char ch ; 
     //int len, i ; 
@@ -192,10 +159,6 @@ void *wait_command(void){
         }//switch
     }//while
     return command_buf ;
-    /*
-    scanf("%s",command_buf) ;
-    return command_buf ;
-    */
 }
 
 static char **argv_buf ;
@@ -208,7 +171,7 @@ void init_command(void){
         argv_buf[i] = malloc(ARG_BUFSIZE) ;
 }
 
-void parse_command(const char *command, int *argc, char **argv){
+void parse_command(char *command, int *argc, char **argv){
     char tmp_buf[CMD_BUFSIZE] ;
     char *delimit = " \t" ;
     char *token ; 
@@ -229,6 +192,40 @@ void parse_command(const char *command, int *argc, char **argv){
 
     *argc = arg_num ;
     *argv = (void *)argv_buf ;
+}
+
+void run_cli(void){
+    int argc ; 
+    char **argv ;
+    int i ; 
+
+    if(!cmd_sorted){
+        sort_table();
+        cmd_sorted =1 ;
+    }
+
+    PutSt("[CLI]$ ");
+
+    parse_command(wait_command(), &argc, (void*)&argv);
+    if ( !argc ){
+        PutSt("argc equals 0 \r\n");
+        return ;
+    }
+
+    for ( i = 0 ; i < num_commands; i++){
+        if(strcmp(cli_command[i].cmd_name, argv[0])==0){
+            cli_command[i].cli_func(argc, argv);
+            break ;
+        }
+    }
+    if ( num_commands <= i){
+        printf("You entered wring command: \"%s\"\n", argv[0]);
+    }
+}
+
+
+void root_menu(char *main_menu){
+    run_cli();
 }
 
 void print_args(int argc, char *argv[]){

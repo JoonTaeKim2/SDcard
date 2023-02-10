@@ -12,10 +12,13 @@ SECTIONS
 {
     .text :
     {
-        *(.vectors)
-        *(.text)
+        KEEP(*(.vectors))
+        KEEP(*(.text))
         . = ALIGN(2);
         *(.text.*)
+        __cli_start = .;
+        KEEP(*(SORT(.cli.*)))
+        __cli_end = .;
         . = ALIGN(2);
     } > flash
 
