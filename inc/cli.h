@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <avr/io.h>
 
 #define CTRL_B      2
 #define CTRL_C      3

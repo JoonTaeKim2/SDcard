@@ -1,81 +1,170 @@
 #include <cli.h>
 
+#define array_num(x) (sizeof(x) / sizeof(x[0]))
+
+struct menu_table{
+    char *menu_item ;
+    void (*menu_func)(void);
+};
+
+static void menu_header(char *title);
+static void menu_body(struct menu_table *body, int num_items);
+static int menu_tail(void);
+
+
+static void do_cloth(void);
+static void do_business(void);
+static void do_books(void);
+static void do_toys(void);
+static void do_dvds(void);
+static void do_collectibles(void);
+static void do_health(void);
+static void do_computers(void);
+
+struct menu_table top_menu[] = {
+    {"Clothing", do_cloth}, 
+    {"Business", do_business}, 
+    {"Books", do_books}, 
+    {"Toys", do_toys}, 
+    {"DVDs", do_dvds}, 
+    {"Collectibles", do_collectibles}, 
+    {"Health", do_health}, 
+    {"Computers", do_computers} 
+} ;
+
+
+static void do_art(void);
+static void do_comics(void);
+static void do_history(void);
+static void do_sf(void);
+
+struct menu_table book_menu[] ={
+    {"Arts & Photography", do_art},
+    {"comics & Graphic Novels", do_comics},
+    {"History", do_history},
+    {"Science Fiction", do_sf},
+};
+
+
+static void do_art(void)
+{
+    puts("Arts & Photography\n");
+}
+static void do_comics(void)
+{
+    puts("Comics & Graphic Novels\n");
+}
+static void do_history(void)
+{
+    puts("History\n");
+}
+static void do_sf(void)
+{
+    puts("Science Fiction\n");
+}
+
+
+static void do_cloth(void)
+{
+    puts("Clothing, Shoes & Accessories\n");
+}
+
+static void do_business(void)
+{
+    puts("Business & Industrial\n");
+}
+
+static void do_books(void)
+{
+    //puts("Books\n");
+    int menu_num, num_items ;
+
+    do{
+        num_items = array_num(book_menu);
+        menu_header("Books");
+        menu_body(book_menu, num_items);
+        menu_num = menu_tail();
+
+        if ( menu_num > 0 && menu_num <= num_items)
+            book_menu[menu_num-1].menu_func();
+    } while (menu_num);
+}
+
+static void do_toys(void)
+{
+    puts("Toys & Hobbies\n");
+}
+
+static void do_dvds(void)
+{
+    puts("DVDs & Movies\n");
+}
+
+static void do_collectibles(void)
+{
+    puts("Collectibles\n");
+}
+
+static void do_health(void)
+{
+    puts("Health & Beauty\n");
+}
+
+static void do_computers(void)
+{
+    puts("Computers & Tablets\n");
+}
 static char command_buf[CMD_BUFSIZE] ;
 
-static int get_menu_num(void){
-    int num ;
-    char *cmd = wait_command();
+static int title_len ;
 
-    num = strtol(cmd, NULL, 0); // conv str to long int
+static void menu_header(char *title){
+    title_len = strlen(title)+ 8;
+    int i ; 
 
-    return num;
+    PutSt("\r\n\r\n");
+    for ( i = 0 ; i < title_len; i++)
+        PutCh('=');
+
+    printf("\n    %s\n",title);
+
+    for (i = 0; i < title_len; i++)
+        PutCh('=');
+
+    PutSt("\r\n\r\n");
 }
 
-static void display_menu(void)
-{
-    PutSt("1. Clothing, Shoes & Accessories\n");
-    PutSt("2. Business & Industrial\n");
-    PutSt("3. Books\n");
-    PutSt("4. Toys & Hobbies\n");
-    PutSt("5. DVDs & Movies\n");
-    PutSt("6. Collectibles\n");
-    PutSt("7. Health & Beauty\n");
-    PutSt("8. Computers & Tablets\n");
-}
-
-void root_menu(char *main_menu){
-    int menu_num ;
-
-    printf("\n\t%s\n\n", main_menu);
-
-    display_menu();
-    PutSt("\nSelect item: ");
-    menu_num = get_menu_num();
-
-    PutSt("\nYour choice is ");
+static void menu_body(struct menu_table *body, int num_items){
+    int i ; 
     
-    switch (menu_num){
-        case 1:
-            PutSt("Clothing \n");
-            break ;
-        case 2:
-            PutSt("Business \n");
-            break ;
-            /*
-        case 3:
-            puts("Books \n");
-            break ;
-        case 4:
-            puts("Toys \n");
-            break ;
-        case 5:
-            puts("DVD \n");
-            break ;
-        case 6:
-            puts("Collections \n");
-            break ;
-        case 7:
-            puts("Health \n");
-            break ;
-        case 8:
-            puts("Computers \n");
-            break ;
-            */
-        default: 
-            puts("Wrong Selection \n");
-            break ;
-    }
-    /*
-    if ( menu_num == 1){
-        puts("Hee is case 1\n");
-    }
-    else if ( menu_num == 2){
-        puts("Business \n");
-    }
-    else{
-        puts("Wrong Selection \n");
-    }
-    */
+    for (i = 0; i < num_items; i++, body++)
+        printf("%2d. %s\n",i+1, body->menu_item);
+}
+
+static int menu_tail(void){
+    int i ; 
+
+    for ( i = 0 ; i < title_len; i++)
+        PutCh('-');
+    printf("\n 0. Exit\n");
+    for ( i = 0 ; i < title_len; i++)
+        PutCh('-');
+
+    printf("\n   Select Number: ");
+
+    return strtol(wait_command(), NULL, 0);
+}
+void root_menu(char *main_menu){
+    int menu_num, num_items ;
+
+    num_items = array_num(top_menu);
+    menu_header(main_menu);
+    menu_body(top_menu, num_items);
+    menu_num = menu_tail();
+    if ( menu_num > 0 && menu_num <= num_items)
+        top_menu[menu_num-1].menu_func();
+    else
+        PutSt("Unknown Item\r\n");
 }
 
 void *wait_command(void){
@@ -86,10 +175,11 @@ void *wait_command(void){
     *cp = EOL ;
     while(1){
         ch = GetCh();
+        //printf("Received Ch : %c\n",ch);
         switch(ch){
             case ENTER:
-                PutCh(ch);
-                PutCh('\n') ;
+                //PutSt("Here is Enter\n");
+                PutSt("\r\n") ;
                 return command_buf ;
 
             default:
@@ -102,158 +192,11 @@ void *wait_command(void){
         }//switch
     }//while
     return command_buf ;
+    /*
+    scanf("%s",command_buf) ;
+    return command_buf ;
+    */
 }
-/*
-static void wait_user_input(void)
-{
-    char ch ;
-    switch (ch=GetCh())
-    {
-        case '\r':
-            puts("Enter");
-            break;
- 
-        case '\b':
-            puts("Backspace");
-            break;
- 
-        case CTRL_C:
-            puts("Ctrl-C");
-            break;
- 
-        case CTRL_B:
-            puts("Ctrl-B");
-            break;
- 
-        case CTRL_F:
-            puts("Ctrl-F");
-            break;
- 
-        case ESC:
-	    ch = GetCh();
-            if (!(ch == ESC2 || ch == ESC3))
-                break;
- 
-            switch (GetCh())
-            {
-		case 0x50:
-		    puts("F1");
- 		    break ;
-
-		case 0x51:
-		    puts("F2");
- 		    break ;
-		case 0x52:
-		    puts("F3");
- 		    break ;
-		case 0x53:
-		    puts("F4");
- 		    break ;
-
-                case 'A':
-                    puts("Up");
-                    break;
- 
-                case 'B':
-                    puts("Down");
-                    break;
- 
-                case 'C':
-                    puts("Right");
-                    break;
- 
-                case 'D':
-                    puts("Left");
-                    break;
- 
-		// F5 ~ F8 is in 0x1B 5B 31 + '6''7''8''9'
-                case '1':
-                    switch (GetCh())
-                    {
-                        case '6':
-                            if (GetCh() == DELIMIT)
-                                puts("F5");
-                            break;
- 
-                        case '7':
-                            if (GetCh() == DELIMIT)
-                                puts("F6");
-                            break;
- 
-                        case '8':
-                            if (GetCh() == DELIMIT)
-                                puts("F7");
-                            break;
- 
-                        case '9':
-                            if (GetCh() == DELIMIT)
-                                puts("F8");
-                            break;
- 
-                        default:
-                            break;
-                    }
-                    break;
- 
-                case '2':
-                    switch (GetCh())
-                    {
-                        case DELIMIT:
-                            puts("Insert");
-                            break;
- 
-                        case '0':
-                            if (GetCh() == DELIMIT)
-                                puts("F9");
-                            break;
- 
-                        case '1':
-                            if (GetCh() == DELIMIT)
-                                puts("F10");
-                            break;
- 
-                        case '3':
-                            if (GetCh() == DELIMIT)
-                                puts("F11");
-                            break;
- 
-                        case '4':
-                            if (GetCh() == DELIMIT)
-                                puts("F12");
-                            break;
- 
-                        default:
-                            break;
-                    }
-                    break;
- 
-                case '3':
-                    if (GetCh() == DELIMIT)
-                        puts("Delete");
-                    break;
- 
-                default:
-                    break;
-            }
- 
-            break;
- 
-        default:
-            break;
-    }
- 
-}
- 
- 
-void cli_loop(void)
-{
-    while(1){
-    	printf("\n[CLI]$ ");
-    	//wait_user_input();
-    	wait_command();
-    }
-}
-*/
 
 static char **argv_buf ;
 void init_command(void){
