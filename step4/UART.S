@@ -9,8 +9,7 @@ UART_Init:
     push temp ;
 	ldi	temp, 0x00	;
 	sts	UBRR0H, temp ;
-	;ldi	temp, 0x67	;
-	ldi	temp, 0x08	;
+	ldi	temp, 0x67	;
 	out	UBRR0L, temp	;  Set baudrate = 9600
 
 	ldi	temp, (1 << TXEN0) | (1<<RXEN0)	;
